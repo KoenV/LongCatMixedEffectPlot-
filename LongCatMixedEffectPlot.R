@@ -57,7 +57,9 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
         aes(ymin=lower_ci,ymax=upper_ci,x=moment.cont,group=condition),
                    alpha=.5,position=position_dodge(width = dodge.level)) + 
       scale_x_discrete(limits=unique(fit@frame$moment),expand=c(.01,.01)) +
-    labs(plot_labels) + theme_bw() + theme(legend.position='top')
+    labs(plot_labels) + theme_bw() + theme(legend.position='top') +
+        theme(axis.title.y=element_text(margin=margin(0,0,0,0)))
+
   
   
   # number of subjects
@@ -78,9 +80,7 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
   both$heights[panels[2]] = unit(2,"lines")
   grid.newpage()
   grid.draw(both)
-}  
-
-
+}
 
 
 
