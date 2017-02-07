@@ -1,7 +1,7 @@
 ##########################################################################################################################
 # Function LongCatMixedEffectPlot: makes a plot of the mean of multiple groups when time is categorical
 # Author: koen.vanbrabant@kuleuven.be
-# date: 8/12/2016
+# date: 7/02/2017
 ######################################################################################################################
 # dependencies
 library(ggplot2); theme_set(theme_bw())
@@ -30,7 +30,7 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
     mean_ci.df$moment.cont = 1:nrow(mean_ci.df)
     mean_ci.df$condition = condition.levels[i]
     names(mean_ci.df) = c('y','lower_ci','upper_ci','moment','moment.cont','condition')
-    list_with_info[[i]] = mean_ci.df
+    list_with_info[[i]] = mean_ci.df[1:nlevels(data$moment),]
   }
   df_with_info = do.call("rbind", list_with_info)
   df_with_info$moment = rep(unique(data$moment),length(list_with_info))
