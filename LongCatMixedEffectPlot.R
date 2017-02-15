@@ -33,8 +33,10 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
     list_with_info[[i]] = mean_ci.df[1:nlevels(data$moment),]
   }
   df_with_info = do.call("rbind", list_with_info)
-  df_with_info$moment = rep(unique(data$moment),length(list_with_info))
-  
+  levels = levels(data$moment)
+  df_with_info$moment = rep(levels,length(list_with_info))
+  df_with_info$moment = factor(df_with_info$moment,levels = levels,ordered = TRUE)
+
 
   # get number of observations for each measurement moment conditional on condition
   data$dummy_count = 1
@@ -51,12 +53,12 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
   ##make mean plot
   mean.plot = ggplot() + 
     geom_point(data=df_with_info,
-          aes(y=y,x=moment.cont,shape=condition),
+          aes(y=y,x=moment,shape=condition),
           position=position_dodge(width = dodge.level)) +
     geom_linerange(data=df_with_info,
         aes(ymin=lower_ci,ymax=upper_ci,x=moment.cont,group=condition),
                    alpha=.5,position=position_dodge(width = dodge.level)) + 
-      scale_x_discrete(limits=unique(fit@frame$moment),expand=c(.01,.01)) +
+      scale_x_discrete(limits=levels(fit@frame$moment),expand=c(.01,.01)) +
     labs(plot_labels) + theme_bw() + theme(legend.position='top') +
         theme(axis.title.y=element_text(margin=margin(0,0,0,0)))
 
