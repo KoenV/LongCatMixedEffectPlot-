@@ -1,7 +1,7 @@
 ##########################################################################################################################
 # Function LongCatMixedEffectPlot: makes a plot of the mean of multiple groups when time is categorical
 # Author: koen.vanbrabant@kuleuven.be
-# date: 7/02/2017
+# date: 22/03/2017
 ######################################################################################################################
 # dependencies
 library(ggplot2); theme_set(theme_bw())
@@ -10,38 +10,36 @@ library(plyr)
 library(gtable)
 library(grid)
 library(Hmisc)
+library(lmerTest)
 
 # function
 LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
   # get the data out of the model,droplevel and give name
-  data = data.frame(fit@frame[,1],fit@frame[,2],fit@frame[,3],fit@frame[,4])
-  names(data) = c('y','moment','condition','id')
-  condition.levels = levels(data$condition)
-  list_with_info = vector('list',length(condition.levels))
+    data = data.frame(fit@frame[,1],fit@frame[,2],fit@frame[,3],fit@frame[,4])
+    names(data) = c('y','moment','condition','id')
+    condition.levels = levels(data$condition)
+    list_with_info = vector('list',length(condition.levels))
+
+    # make a data.frame with estimates and CI
+    nr_moment = length(unique(data$moment))
+    nr_condition = length(unique(data$condition))
+    output = lsmeans(fit)$lsmeans.table
+    ouput_v2 = output[(nr_moment+nr_condition+1):nrow(output),c(1,2,3,7,8)]
+    ouput_v2$moment.cont = rep(1:nr_moment,2)
+    names(ouput_v2) = c('moment','condition','y','lower_ci','upper_ci','moment.cont')
   
-  # calculate mean and CI
-  for(i in 1:length(condition.levels)){
-    re_fit = lmer(y ~ - 1 + moment*relevel(condition,ref=condition.levels[i]) + (1|id), REML=FALSE,data=data)
-    effect.names = labels(fixef(re_fit))   
-    estimates = unname(fixef(re_fit)[1:length(effect.names)])
-    c0 = suppressMessages(confint(re_fit,parm=effect.names[1:(length(estimates)/2)],level=conf.level))
-    mean_ci.df = data.frame(estimates[1:(length(estimates)/2)],c0)
-    mean_ci.df$moment = rownames(mean_ci.df)
-    mean_ci.df$moment.cont = 1:nrow(mean_ci.df)
-    mean_ci.df$condition = condition.levels[i]
-    names(mean_ci.df) = c('y','lower_ci','upper_ci','moment','moment.cont','condition')
-    list_with_info[[i]] = mean_ci.df[1:nlevels(data$moment),]
-  }
-  df_with_info = do.call("rbind", list_with_info)
-  levels = levels(data$moment)
-  df_with_info$moment = rep(levels,length(list_with_info))
-  df_with_info$moment = factor(df_with_info$moment,levels = levels,ordered = TRUE)
+ 
+    levels = levels(data$moment)
+    ouput_v2$moment = factor(ouput_v2$moment,levels = levels,ordered = TRUE)
 
 
-  # get number of observations for each measurement moment conditional on condition
-  data$dummy_count = 1
-  n_table = ddply(data[!is.na(data$y),],c('condition','moment'),summarise,total=sum(!is.na(y)))
-  n_table$moment.cont = df_with_info$moment.cont
+    # get number of observations for each measurement moment conditional on condition
+    data$dummy_count = 1
+    
+    n_table = ddply(data[!is.na(data$y),],c('condition','moment'),
+        summarise,total=sum(!is.na(y)))
+    
+    n_table$moment.cont = df_with_info$moment.cont
 
   
   ##### plotting
@@ -52,10 +50,10 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
     shape='')
   ##make mean plot
   mean.plot = ggplot() + 
-    geom_point(data=df_with_info,
+    geom_point(data=ouput_v2,
           aes(y=y,x=moment,shape=condition),
           position=position_dodge(width = dodge.level)) +
-    geom_linerange(data=df_with_info,
+    geom_linerange(data=ouput_v2,
         aes(ymin=lower_ci,ymax=upper_ci,x=moment.cont,group=condition),
                    alpha=.5,position=position_dodge(width = dodge.level)) + 
       scale_x_discrete(limits=levels(fit@frame$moment),expand=c(.01,.01)) +
