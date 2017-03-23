@@ -18,7 +18,6 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
     data = data.frame(fit@frame[,1],fit@frame[,2],fit@frame[,3],fit@frame[,4])
     names(data) = c('y','moment','condition','id')
     condition.levels = levels(data$condition)
-    list_with_info = vector('list',length(condition.levels))
 
     # make a data.frame with estimates and CI
     nr_moment = length(unique(data$moment))
@@ -39,7 +38,7 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
     n_table = ddply(data[!is.na(data$y),],c('condition','moment'),
         summarise,total=sum(!is.na(y)))
     
-    n_table$moment.cont = df_with_info$moment.cont
+    n_table$moment.cont = ouput_v2$moment.cont
 
   
   ##### plotting
