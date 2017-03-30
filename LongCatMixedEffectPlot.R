@@ -22,7 +22,7 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
     # make a data.frame with estimates and CI
     nr_moment = length(unique(data$moment))
     nr_condition = length(unique(data$condition))
-    output = lsmeans(fit)$lsmeans.table
+    output = lsmeansLT(fit)$lsmeans.table
     ouput_v2 = output[(nr_moment+nr_condition+1):nrow(output),c(1,2,3,7,8)]
     ouput_v2$moment.cont = rep(1:nr_moment,2)
     names(ouput_v2) = c('moment','condition','y','lower_ci','upper_ci','moment.cont')
