@@ -73,12 +73,27 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70){
       theme(plot.title = element_text(hjust = 0)) 
   
   ## combine mean and risk.plot
-  both = rbind(ggplotGrob(mean.plot), ggplotGrob(risk.plot), size="last")
-  panels <- both$layout$t[grep("panel", both$layout$name)]
-  both$heights[panels[1]] = unit(1,"null") 
-  both$heights[panels[2]] = unit(2,"lines")
-  grid.newpage()
-  grid.draw(both)
+  
+  
+  
+  if(nlevels(ouput_v2$condition)<4){
+    both = rbind(ggplotGrob(mean.plot), ggplotGrob(risk.plot), size="last")
+    panels <- both$layout$t[grep("panel", both$layout$name)]
+    both$heights[panels[1]] = unit(1,"null") 
+    both$heights[panels[2]] = unit(2,"lines")
+    grid.newpage()
+    grid.draw(both)
+      
+  }else{
+    both = rbind(ggplotGrob(mean.plot), ggplotGrob(risk.plot), size="last")
+    panels <- both$layout$t[grep("panel", both$layout$name)]
+    both$heights[panels[1]] = unit(1.2,"null") 
+    both$heights[panels[2]] = unit(.3,"null")
+    grid.newpage()
+    grid.draw(both)
+      
+  }
+
 }
 
 
