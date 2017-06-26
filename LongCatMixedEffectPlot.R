@@ -15,7 +15,12 @@ library(Hmisc)
 library(lmerTest)
 
 # function
-LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70,package=c('lme4','nlme')){
+LongCatMixedEffectPlot = function(
+    fit,
+    conf.level=.95,
+    dodge.level=.70,
+    transformation = c(),
+    package=c('lme4','nlme')){
     
     if(package=='lme4'){
         
@@ -45,6 +50,10 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70,package=c('
     
         n_table$moment.cont = ouput_v2$moment.cont
     
+        if(transformation=='ihs'){
+            ouput_v2[,c('y','lower_ci','upper_ci')] = sinh(ouput_v2[,c('y','lower_ci','upper_ci')])
+            
+        }
     
         ##### plotting
         ## get labels for mean plot
@@ -127,6 +136,10 @@ LongCatMixedEffectPlot = function(fit,conf.level=.95,dodge.level=.70,package=c('
         levels = levels(data$moment)
         ouput_v2$moment = factor(ouput_v2$moment,levels = levels,ordered = TRUE)
         
+        if(transformation=='ihs'){
+            ouput_v2[,c('y','lower_ci','upper_ci')] = sinh(ouput_v2[,c('y','lower_ci','upper_ci')])
+            
+        }
         
         # get number of observations for each measurement moment conditional on condition
         data$dummy_count = 1
